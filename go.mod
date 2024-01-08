@@ -1,4 +1,4 @@
-module pruebas
+module github.com/alejandronaz/12-api-inicial
 
 go 1.21.5
 
