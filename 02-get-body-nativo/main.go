@@ -20,6 +20,7 @@ func main() {
 		if r.Method != http.MethodPost {
 			// set response code
 			w.WriteHeader(400)
+
 			// set response body
 			_, err := w.Write([]byte(`Only POST method is allowed`))
 			if err != nil {
@@ -29,31 +30,42 @@ func main() {
 		}
 
 		// get body and parse it to bytes
-		reader := r.Body
+		reader := r.Body // r.Body returns io.ReadCloser which implements the interface io.Reader
 
 		bytesMessage, err := io.ReadAll(reader)
 		if err == io.EOF {
-			_, err := w.Write([]byte(`body is missing`))
+			// set response code
+			w.WriteHeader(400)
+
+			_, err := w.Write([]byte(`error while reading body`))
 			if err != nil {
-				fmt.Println("Error writing response body while parsing it", err)
+				fmt.Println("Error writing response body while parsing it: ", err)
 			}
 			return
 		}
 
-		// parse bytes to struct
+		// decode body bytes to struct
 		var body Greeting
 		if err := json.Unmarshal([]byte(bytesMessage), &body); err != nil {
-			fmt.Println("Error parsing body", err)
+			fmt.Println("Error parsing body: ", err) // for example, if body is empty or its malformed
+
+			// set response code
+			w.WriteHeader(400)
+			_, err := w.Write([]byte(`body has not the correct format`))
+			if err != nil {
+				fmt.Println("Error writing response body while parsing it: ", err)
+			}
 			return
 		}
 
 		// set response code
 		w.WriteHeader(200)
+
 		// set response body
 		resMessage := fmt.Sprintf("Hello %s %s", body.FirstName, body.LastName)
 		_, err = w.Write([]byte(resMessage))
 		if err != nil {
-			fmt.Println("Error writing response body", err)
+			fmt.Println("Error writing response body: ", err)
 			return
 		}
 
