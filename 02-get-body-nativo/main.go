@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -32,29 +31,44 @@ func main() {
 		// get body and parse it to bytes
 		reader := r.Body // r.Body returns io.ReadCloser which implements the interface io.Reader
 
-		bytesMessage, err := io.ReadAll(reader)
-		if err == io.EOF {
-			// set response code
-			w.WriteHeader(400)
+		// OPCION 1: UTILIZAR UNMARSHAL
 
-			_, err := w.Write([]byte(`error while reading body`))
-			if err != nil {
-				fmt.Println("Error writing response body while parsing it: ", err)
-			}
-			return
-		}
+		// bytesMessage, err := io.ReadAll(reader)
+		// if err == io.EOF {
+		// 	// set response code
+		// 	w.WriteHeader(400)
 
-		// decode body bytes to struct
+		// 	_, err := w.Write([]byte(`error while reading body`))
+		// 	if err != nil {
+		// 		fmt.Println("Error writing response body while parsing it: ", err)
+		// 	}
+		// 	return
+		// }
+
+		// // decode body bytes to struct
+		// var body Greeting
+		// if err := json.Unmarshal(bytesMessage, &body); err != nil {
+		// 	fmt.Println("Error parsing body: ", err) // for example, if body is empty or its malformed
+
+		// 	// set response code
+		// 	w.WriteHeader(400)
+		// 	_, err := w.Write([]byte(`body has not the correct format`))
+		// 	if err != nil {
+		// 		fmt.Println("Error writing response body while parsing it: ", err)
+		// 	}
+		// 	return
+		// }
+
+		// OPCION 2: UTILIZAR DECODER
+
+		// creo un decoder
+		dc := json.NewDecoder(reader)
+
+		// decode json to struct
 		var body Greeting
-		if err := json.Unmarshal(bytesMessage, &body); err != nil {
-			fmt.Println("Error parsing body: ", err) // for example, if body is empty or its malformed
-
-			// set response code
-			w.WriteHeader(400)
-			_, err := w.Write([]byte(`body has not the correct format`))
-			if err != nil {
-				fmt.Println("Error writing response body while parsing it: ", err)
-			}
+		err := dc.Decode(&body)
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
