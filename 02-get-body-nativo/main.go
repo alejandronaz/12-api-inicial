@@ -46,7 +46,7 @@ func main() {
 
 		// decode body bytes to struct
 		var body Greeting
-		if err := json.Unmarshal([]byte(bytesMessage), &body); err != nil {
+		if err := json.Unmarshal(bytesMessage, &body); err != nil {
 			fmt.Println("Error parsing body: ", err) // for example, if body is empty or its malformed
 
 			// set response code
