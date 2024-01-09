@@ -65,8 +65,8 @@ func main() {
 		dc := json.NewDecoder(reader)
 
 		// decode json to struct
-		var body Greeting
-		err := dc.Decode(&body)
+		var bodyReq Greeting
+		err := dc.Decode(&bodyReq)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -76,12 +76,24 @@ func main() {
 		w.WriteHeader(200)
 
 		// set response body
-		resMessage := fmt.Sprintf("Hello %s %s", body.FirstName, body.LastName)
-		_, err = w.Write([]byte(resMessage))
-		if err != nil {
-			fmt.Println("Error writing response body: ", err)
-			return
+		resMessage := fmt.Sprintf("Hello %s %s", bodyReq.FirstName, bodyReq.LastName)
+
+		// RETORNAR TEXTO
+		// _, err = w.Write([]byte(resMessage))
+		// if err != nil {
+		// 	fmt.Println("Error writing response body: ", err)
+		// 	return
+		// }
+
+		// RETORNAR JSON
+		type Message struct {
+			Message string `json:"message"`
 		}
+		bodyRes := Message{resMessage}
+
+		// codifico el mensaje en formato JSON
+		json.NewEncoder(w).Encode(&bodyRes)
+		// Si no hubo error, el encoder escribió en el Writer (http.ResponseWriter)
 
 	}
 
